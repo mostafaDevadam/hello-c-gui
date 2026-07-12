@@ -1,0 +1,15 @@
+
+
+install
+sudo apt install uil motif-clients
+sudo apt install libmotif-dev libxt-dev libx11-dev
+
+
+
+run
+
+
+
+rm -f motif
+gcc -o motif motif.c -I/usr/include/Xm -lXm -lXt -lX11
+./motif
