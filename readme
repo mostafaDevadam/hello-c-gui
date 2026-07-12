@@ -8,6 +8,17 @@ sudo apt install libmotif-dev libxt-dev libx11-dev
 
 run
 
+gcc main.c -o main
+./main
+
+gcc gtk.c -o gtk
+./gtk
+
+gcc micro.c -o micro
+./micro
+
+gcc raylib.c -o raylib
+./raylib
 
 
 rm -f motif
