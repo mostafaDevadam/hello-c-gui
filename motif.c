@@ -6,11 +6,20 @@
 #include <Xm/TextF.h>
 #include <Xm/Label.h>
 #include <ctype.h>
+#include <Xm/MessageB.h>
+
+typedef struct UserNode {
+   char name[100];
+   char city[100];
+   int age;
+   struct UserNode *next;
+} UserData;
 
 typedef struct {
 	  Widget name_field;
 	  Widget city_field;
 	  Widget age_field;
+      UserData **list_head;
 	} FormFields;
 
 
@@ -38,6 +47,10 @@ int is_numeric(const char *str) {
 }
 
 
+void on_close_dialog(Widget w, XtPointer client_data, XtPointer call_data){
+    Widget dialog = (Widget)client_data;
+    XtUnmanageChild(dialog);
+}
 
 void on_submit(Widget w, XtPointer client_data, XtPointer call_data){
       FormFields *fields = (FormFields *)client_data;
@@ -45,7 +58,38 @@ void on_submit(Widget w, XtPointer client_data, XtPointer call_data){
       char *name = XmTextFieldGetString(fields->name_field);
       char *city = XmTextFieldGetString(fields->city_field);
       char *age_field = XmTextFieldGetString(fields->age_field);
+
+
+      // dialog
+      char message[256];
+      snprintf(message, sizeof(message), "You submitted:%s\n", name);
+
+      XmString motif_message = XmStringCreateLocalized(message);
+      XmString title_string = XmStringCreateLocalized("Submission status");
+
+      Widget dialog = XmCreateInformationDialog(fields->name_field, "infoDialog", NULL , 0);
       
+       
+      XtVaSetValues(dialog, XmNmessageString, motif_message,
+       XmNdialogTitle, title_string, 
+       XmNwidth, 500,
+       XmNheight, 300,
+       XmNresizePolicy, 
+       XmRESIZE_NONE, 
+       NULL
+      );
+
+      XmStringFree(motif_message);
+      XmStringFree(title_string);
+
+      Widget cancel_btn = XmMessageBoxGetChild(dialog, XmDIALOG_CANCEL_BUTTON);
+      Widget help_btn = XmMessageBoxGetChild(dialog, XmDIALOG_HELP_BUTTON);
+      XtUnmanageChild(cancel_btn);
+      XtUnmanageChild(help_btn);
+
+      XtAddCallback(dialog, XmNokCallback, on_close_dialog, (XtPointer)dialog);
+      //
+
       if(!is_numeric(age_field)){
 		  printf("Validation Error, please enter a valid number for age! \n");
 	  }else {
@@ -56,7 +100,28 @@ void on_submit(Widget w, XtPointer client_data, XtPointer call_data){
 		   } else {
 			   printf("Profile Submitted success!\n");
 			   printf("Form Submitted: name: %s , city: %s , age: %d\n", name, city, age);
-		   }	  
+		       // save data
+               UserData *new_user = (UserData *)malloc(sizeof(UserData));
+               if(new_user != NULL){
+                snprintf(new_user->name, sizeof(new_user->name), "%s", name);
+                snprintf(new_user->city, sizeof(new_user->city), "%s", city);
+                new_user->age = age;
+
+                new_user->next = *(fields->list_head);
+                *(fields->list_head) = new_user;
+
+                printf("Success saved into list memory!\n");
+
+               }
+
+               XmTextFieldSetString(fields->name_field, "");
+               
+               
+               
+               // open dialog on screen
+               XtManageChild(dialog);
+           
+            }	  
 	  }
       
       
@@ -81,15 +146,23 @@ void submit_clicked(Widget w, XtPointer client_data, XtPointer call_data){
 int main(int argc, char *argv[]) { // Added standard arguments required by initialization
     printf("\n");
     
-    
+    UserData *user_list_head = NULL;
+
     XtAppContext app;
     Widget top_level, row_col, button,lbl1, lbl2, lbl3, text_field, submit_btn;
     
     FormFields *my_form = (FormFields *)malloc(sizeof(FormFields));
+
+    my_form->list_head = & user_list_head;
     
     // 1. Fixed "PtAppInitialize" typo to "XtVaAppInitialize"
     // 2. Passed &argc and argv instead of zeros to correctly initialize X Toolkit
-    top_level = XtVaAppInitialize(&app, "Hello", NULL, 0, &argc, argv, NULL, NULL);
+    top_level = XtVaAppInitialize(&app, "Hello", NULL, 0, &argc, argv, NULL, 
+        XmNwidth, 1000, XmNheight, 700,
+        
+        NULL);
+
+    //XtVaSetValues(top_level, XmNwidth, 1000, XmNheight, 700, NULL);
     
     row_col = XmCreateRowColumn(top_level, "mainLayout", NULL, 0);
     XtManageChild(row_col);
