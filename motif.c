@@ -24,6 +24,11 @@ typedef struct {
 	  Widget age_field;
       Widget display_list;
       UserData **list_head;
+
+      // nav containe refs
+      Widget home_view_panel;
+      Widget about_view_panel;
+
 	} FormFields;
 
 
@@ -155,6 +160,20 @@ void submit_clicked(Widget w, XtPointer client_data, XtPointer call_data){
    XtFree(user_input);	
 }
 
+void on_nav_click(Widget w, XtPointer client_data, XtPointer call_data){
+     FormFields *app_ctx = (FormFields *)client_data;
+
+     char*button_name = XtName(w);
+
+     if(strcmp(button_name, "navHome") == 0){
+        XtUnmanageChild(app_ctx->about_view_panel);
+        XtManageChild(app_ctx->home_view_panel);
+     }else if(strcmp(button_name, "navAbout") == 0){
+        XtUnmanageChild(app_ctx->home_view_panel);
+        XtManageChild(app_ctx->about_view_panel);
+     }
+
+}
 
 int main(int argc, char *argv[]) { // Added standard arguments required by initialization
     printf("\n");
@@ -162,7 +181,11 @@ int main(int argc, char *argv[]) { // Added standard arguments required by initi
     UserData *user_list_head = NULL;
 
     XtAppContext app;
-    Widget top_level, row_col,main_form, main_content_window, left_sidebar, lbl_right, details_box, center_window, right_sidebar, sidebar, button,lbl1, lbl2, lbl3, text_field, submit_btn;
+    Widget top_level, row_col,main_form, main_content_window, left_sidebar;
+    Widget  lbl_right, details_box, center_window, right_sidebar, sidebar;
+    Widget button,lbl1, lbl2, lbl3, text_field, submit_btn;
+    Widget center_workspace, lbl_about_text, scroll_list_frame;
+    Widget btn_home, btn_about;
     
     FormFields *my_form = (FormFields *)malloc(sizeof(FormFields));
 
@@ -181,63 +204,43 @@ int main(int argc, char *argv[]) { // Added standard arguments required by initi
     XtManageChild(main_form);
 
     
+
     
-    left_sidebar = XmCreateRowColumn(main_form, "mainLayout", NULL, 0);
+    // left_sidebar
+    left_sidebar = XmCreateRowColumn(main_form, "leftSidebar", NULL, 0);
     XtVaSetValues(
         left_sidebar,
         XmNtopAttachment, XmATTACH_FORM,
         XmNbottomAttachment, XmATTACH_FORM,
         XmNleftAttachment, XmATTACH_FORM,
-        XmNwidth, 200,
+        XmNwidth, 180,
         NULL
     );
     XtManageChild(left_sidebar);
 
+    // left_sidebar items
+    btn_home = XmCreatePushButton(left_sidebar, "navHome", NULL, 0);
+    XmString btn_home_lbl = XmStringCreateLocalized("Home Form View");
+    XtVaSetValues(btn_home, XmNlabelString, btn_home_lbl, NULL);
+    XmStringFree(btn_home_lbl);
+    XtManageChild(btn_home);
+    XtAddCallback(btn_home, XmNactivateCallback, on_nav_click, (XtPointer)my_form);
 
-    
-    // text_field
-    //text_field = XmCreateTextField(row_col, "inputField", NULL, 0);
-    //XtManageChild(text_field);
-    
-    
-    lbl1 = XmCreateLabel(left_sidebar, "Name:", NULL, 0);
-    XtManageChild(lbl1);
-    my_form->name_field = XmCreateTextField(left_sidebar, "Name", NULL, 0);
-    XtManageChild(my_form->name_field);
-    
-    lbl2 = XmCreateLabel(left_sidebar, "Age:", NULL, 0);
-    XtManageChild(lbl2);
-    my_form->age_field = XmCreateTextField(left_sidebar, "Age", NULL, 0);
-    XtManageChild(my_form->age_field);
-    
-    
-    lbl3 = XmCreateLabel(left_sidebar, "City:", NULL, 0);
-    XtManageChild(lbl3);
-    my_form->city_field = XmCreateTextField(left_sidebar, "City", NULL, 0);
-    XtManageChild(my_form->city_field);
-    
-    
-    
-    
-    
-    // 3. Fixed the variable typo 'o' to the digit '0'
-    button = XmCreatePushButton(left_sidebar, "Click", NULL, 0);
-    XtManageChild(button);
-    XtAddCallback(button, XmNactivateCallback, button_clicked, NULL);
-    
-    submit_btn = XmCreatePushButton(left_sidebar, "Submit", NULL, 0);
-    XtManageChild(submit_btn);
-    XtAddCallback(submit_btn, XmNactivateCallback, on_submit, (XPointer)my_form);
-    //XtAddCallback(submit_btn, XmNactivateCallback, submit_clicked, (XPointer)text_field);
-    
+    btn_about = XmCreatePushButton(left_sidebar, "navAbout", NULL, 0);
+    XmString btn_about_lbl = XmStringCreateLocalized("About View");
+    XtVaSetValues(btn_about, XmNlabelString, btn_about_lbl, NULL);
+    XmStringFree(btn_about_lbl);
+    XtManageChild(btn_about);
+    XtAddCallback(btn_about, XmNactivateCallback, on_nav_click, (XtPointer)my_form);
 
+    // right_sidebar
     right_sidebar = XmCreateRowColumn(main_form, "rightSidebar", NULL, 0);
     XtVaSetValues(
         right_sidebar,
         XmNtopAttachment, XmATTACH_FORM,
         XmNbottomAttachment, XmATTACH_FORM,
         XmNrightAttachment, XmATTACH_FORM,
-        XmNwidth, 220,
+        XmNwidth, 180,
         NULL
     );
     XtManageChild(right_sidebar);
@@ -245,16 +248,88 @@ int main(int argc, char *argv[]) { // Added standard arguments required by initi
     lbl_right = XmCreateLabel(right_sidebar, "Notes", NULL, 0);
     XtManageChild(lbl_right);
     details_box = XmCreateScrolledText(right_sidebar, "detailsBox", NULL, 0);
-    XtVaSetValues(details_box, XmNeditMode, XmMULTI_LINE_EDIT, XmNrows, 10, NULL);
+    XtVaSetValues(details_box, 
+        XmNeditMode,
+         XmMULTI_LINE_EDIT,
+          XmNrows, 10,
+          //XmNcolumns, 20,
+          NULL);
     XtManageChild(details_box);
+    XtManageChild(XtParent(details_box));
+
+    // center_workspace
+    center_workspace = XmCreateForm(main_form, "mainForm", NULL, 0);
+    //XtManageChild(main_form);
+    XtVaSetValues(center_workspace,
+        XmNtopAttachment, XmATTACH_FORM,
+        XmNbottomAttachment, XmATTACH_FORM,
+
+        XmNleftAttachment, XmATTACH_WIDGET,
+        XmNleftWidget, left_sidebar,
+        XmNleftOffset, 15,
 
 
+        XmNrightAttachment, XmATTACH_FORM,
+        XmNrightWidget, right_sidebar,
+        XmNleftOffset, 15,
+        
+        NULL
+    );
+    XtManageChild(center_workspace);
 
-    my_form->display_list = XmCreateScrolledList(main_form, "userListView", NULL, 0);
-    center_window = XtParent(my_form->display_list);
-    //XtVaSetValues(my_form->display_list, XmNvisibleItemCount, 8, NULL);
-    XtVaSetValues(
-      center_window,
+    // home_view_panel
+
+    my_form->home_view_panel = XmCreateRowColumn(center_workspace,"homeView", NULL, 0 );
+    XtVaSetValues(my_form->home_view_panel,
+        XmNtopAttachment, XmATTACH_FORM,
+        XmNbottomAttachment, XmATTACH_FORM,
+        XmNleftAttachment, XmATTACH_FORM,
+        XmNrightAttachment, XmATTACH_WIDGET,
+        NULL
+    );
+    XtManageChild(my_form->home_view_panel);
+
+    
+    // text_field
+    //text_field = XmCreateTextField(row_col, "inputField", NULL, 0);
+    //XtManageChild(text_field);
+
+    // form
+    
+    lbl1 = XmCreateLabel(my_form->home_view_panel, "Name:", NULL, 0);
+    XtManageChild(lbl1);
+    my_form->name_field = XmCreateTextField(my_form->home_view_panel, "Name", NULL, 0);
+    XtManageChild(my_form->name_field);
+    
+    lbl2 = XmCreateLabel(my_form->home_view_panel, "Age:", NULL, 0);
+    XtManageChild(lbl2);
+    my_form->age_field = XmCreateTextField(my_form->home_view_panel, "Age", NULL, 0);
+    XtManageChild(my_form->age_field);
+    
+    
+    lbl3 = XmCreateLabel(my_form->home_view_panel, "City:", NULL, 0);
+    XtManageChild(lbl3);
+    my_form->city_field = XmCreateTextField(my_form->home_view_panel, "City", NULL, 0);
+    XtManageChild(my_form->city_field);
+    
+    
+    // 3. Fixed the variable typo 'o' to the digit '0'
+    button = XmCreatePushButton(my_form->home_view_panel, "Click", NULL, 0);
+    XtManageChild(button);
+    XtAddCallback(button, XmNactivateCallback, button_clicked, NULL);
+    
+    submit_btn = XmCreatePushButton(my_form->home_view_panel, "Submit", NULL, 0);
+    XtManageChild(submit_btn);
+    XtAddCallback(submit_btn, XmNactivateCallback, on_submit, (XPointer)my_form);
+    //XtAddCallback(submit_btn, XmNactivateCallback, submit_clicked, (XPointer)text_field);
+    
+
+     my_form->display_list = XmCreateScrolledList(my_form->home_view_panel, "userListView", NULL, 0);
+    scroll_list_frame = XtParent(my_form->display_list);
+    XtVaSetValues(my_form->display_list, XmNvisibleItemCount, 8, NULL);
+    XtManageChild(my_form->display_list);
+    /*XtVaSetValues(
+      scroll_list_frame,
       XmNtopAttachment, XmATTACH_FORM,
       XmNbottomAttachment, XmATTACH_FORM,
       XmNleftAttachment, XmATTACH_WIDGET,
@@ -265,16 +340,27 @@ int main(int argc, char *argv[]) { // Added standard arguments required by initi
       XmNrightOffset, 10,
 
       NULL
+    );*/
+
+    // about view
+    my_form->about_view_panel = XmCreateRowColumn(center_workspace, "aboutView", NULL, 0);
+    XtVaSetValues(my_form->about_view_panel,
+        XmNtopAttachment, XmATTACH_FORM,
+        XmNbottomAttachment, XmATTACH_FORM,
+        XmNleftAttachment, XmATTACH_FORM,
+        XmNrightAttachment, XmATTACH_WIDGET,
+        NULL
     );
+    XtManageChild(my_form->about_view_panel);
+
+    lbl_about_text = XmCreateLabel(my_form->about_view_panel,
+    "--- Motif Navigation System ---\n\n"
+        "This software demonstrates layered structural widgets.\n"
+        "Built securely using standard components in C.",
+    NULL, 0
+    );
+    XtManageChild(lbl_about_text);
     
-    
-    XtManageChild(my_form->display_list);
-
-    
-
-
-
-
 
     XtRealizeWidget(top_level);
     XtAppMainLoop(app);
