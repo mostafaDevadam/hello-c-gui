@@ -166,10 +166,10 @@ void on_nav_click(Widget w, XtPointer client_data, XtPointer call_data){
 
      char*button_name = XtName(w);
 
-     if(strcmp(button_name, "navHome") == 0){
+     if(strcmp(button_name, "homeView") == 0){
         XtUnmanageChild(app_ctx->about_view_panel);
         XtManageChild(app_ctx->home_view_panel);
-     }else if(strcmp(button_name, "navAbout") == 0){
+     }else if(strcmp(button_name, "aboutView") == 0){
         XtUnmanageChild(app_ctx->home_view_panel);
         XtManageChild(app_ctx->about_view_panel);
      }
@@ -214,20 +214,20 @@ int main(int argc, char *argv[]) { // Added standard arguments required by initi
         XmNtopAttachment, XmATTACH_FORM,
         XmNbottomAttachment, XmATTACH_FORM,
         XmNleftAttachment, XmATTACH_FORM,
-        XmNwidth, 180,
+        XmNwidth, 300,
         NULL
     );
     XtManageChild(left_sidebar);
 
     // left_sidebar items
-    btn_home = XmCreatePushButton(left_sidebar, "navHome", NULL, 0);
+    btn_home = XmCreatePushButton(left_sidebar, "homeView", NULL, 0);
     XmString btn_home_lbl = XmStringCreateLocalized("Home Form View");
     XtVaSetValues(btn_home, XmNlabelString, btn_home_lbl, NULL);
     XmStringFree(btn_home_lbl);
     XtManageChild(btn_home);
     XtAddCallback(btn_home, XmNactivateCallback, on_nav_click, (XtPointer)my_form);
 
-    btn_about = XmCreatePushButton(left_sidebar, "navAbout", NULL, 0);
+    btn_about = XmCreatePushButton(left_sidebar, "aboutView", NULL, 0);
     XmString btn_about_lbl = XmStringCreateLocalized("About View");
     XtVaSetValues(btn_about, XmNlabelString, btn_about_lbl, NULL);
     XmStringFree(btn_about_lbl);
@@ -241,7 +241,7 @@ int main(int argc, char *argv[]) { // Added standard arguments required by initi
         XmNtopAttachment, XmATTACH_FORM,
         XmNbottomAttachment, XmATTACH_FORM,
         XmNrightAttachment, XmATTACH_FORM,
-        XmNwidth, 180,
+        //XmNwidth, 300,
         NULL
     );
     XtManageChild(right_sidebar);
@@ -268,7 +268,7 @@ int main(int argc, char *argv[]) { // Added standard arguments required by initi
         XmNleftAttachment, XmATTACH_FORM,
         XmNleftWidget, left_sidebar,
         XmNleftOffset, 100,
-        XmNwidth, 50,
+        XmNwidth, 100,
         NULL);
 
          // left_side_separator
@@ -281,7 +281,7 @@ int main(int argc, char *argv[]) { // Added standard arguments required by initi
         XmNrightAttachment, XmATTACH_FORM,
         XmNrightWidget, right_sidebar,
         XmNrightOffset, 150,
-        XmNwidth, 50,
+        XmNwidth, 100,
         NULL);
 
     // center_workspace
@@ -300,7 +300,7 @@ int main(int argc, char *argv[]) { // Added standard arguments required by initi
         XmNrightWidget, right_sidebar_separator,
         XmNleftOffset, 15,
 
-        //XmNwidth, 400,
+        XmNwidth, 400,
         
         NULL
     );
