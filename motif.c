@@ -10,6 +10,7 @@
 #include <Xm/MessageB.h>
 #include <Xm/List.h>
 #include <Xm/Form.h>
+#include <Xm/Separator.h>
 
 typedef struct UserNode {
    char name[100];
@@ -185,7 +186,7 @@ int main(int argc, char *argv[]) { // Added standard arguments required by initi
     Widget  lbl_right, details_box, center_window, right_sidebar, sidebar;
     Widget button,lbl1, lbl2, lbl3, text_field, submit_btn;
     Widget center_workspace, lbl_about_text, scroll_list_frame;
-    Widget btn_home, btn_about;
+    Widget btn_home, btn_about, left_sidebar_separator, right_sidebar_separator;
     
     FormFields *my_form = (FormFields *)malloc(sizeof(FormFields));
 
@@ -257,6 +258,32 @@ int main(int argc, char *argv[]) { // Added standard arguments required by initi
     XtManageChild(details_box);
     XtManageChild(XtParent(details_box));
 
+    // left_side_separator
+    left_sidebar_separator = XtVaCreateManagedWidget("leftSidebarSep", 
+        xmSeparatorWidgetClass, main_form, 
+        XmNorientation, XmVERTICAL,
+        XmNseparatorType, XmSHADOW_ETCHED_IN,
+        XmNtopAttachment, XmATTACH_FORM,
+        XmNbottomAttachment, XmATTACH_FORM,
+        XmNleftAttachment, XmATTACH_FORM,
+        XmNleftWidget, left_sidebar,
+        XmNleftOffset, 100,
+        XmNwidth, 50,
+        NULL);
+
+         // left_side_separator
+    right_sidebar_separator = XtVaCreateManagedWidget("rightSidebarSep", 
+        xmSeparatorWidgetClass, main_form, 
+        XmNorientation, XmVERTICAL,
+        XmNseparatorType, XmSHADOW_ETCHED_IN,
+        XmNtopAttachment, XmATTACH_FORM,
+        XmNbottomAttachment, XmATTACH_FORM,
+        XmNrightAttachment, XmATTACH_FORM,
+        XmNrightWidget, right_sidebar,
+        XmNrightOffset, 150,
+        XmNwidth, 50,
+        NULL);
+
     // center_workspace
     center_workspace = XmCreateForm(main_form, "mainForm", NULL, 0);
     //XtManageChild(main_form);
@@ -265,13 +292,15 @@ int main(int argc, char *argv[]) { // Added standard arguments required by initi
         XmNbottomAttachment, XmATTACH_FORM,
 
         XmNleftAttachment, XmATTACH_WIDGET,
-        XmNleftWidget, left_sidebar,
+        XmNleftWidget, left_sidebar_separator,
         XmNleftOffset, 15,
 
 
         XmNrightAttachment, XmATTACH_FORM,
-        XmNrightWidget, right_sidebar,
+        XmNrightWidget, right_sidebar_separator,
         XmNleftOffset, 15,
+
+        //XmNwidth, 400,
         
         NULL
     );
@@ -284,7 +313,8 @@ int main(int argc, char *argv[]) { // Added standard arguments required by initi
         XmNtopAttachment, XmATTACH_FORM,
         XmNbottomAttachment, XmATTACH_FORM,
         XmNleftAttachment, XmATTACH_FORM,
-        XmNrightAttachment, XmATTACH_WIDGET,
+        XmNrightAttachment, XmATTACH_FORM,
+        //XmNwidth, 300,
         NULL
     );
     XtManageChild(my_form->home_view_panel);
@@ -348,10 +378,10 @@ int main(int argc, char *argv[]) { // Added standard arguments required by initi
         XmNtopAttachment, XmATTACH_FORM,
         XmNbottomAttachment, XmATTACH_FORM,
         XmNleftAttachment, XmATTACH_FORM,
-        XmNrightAttachment, XmATTACH_WIDGET,
+        XmNrightAttachment, XmATTACH_FORM,
         NULL
     );
-    XtManageChild(my_form->about_view_panel);
+    //XtManageChild(my_form->about_view_panel);
 
     lbl_about_text = XmCreateLabel(my_form->about_view_panel,
     "--- Motif Navigation System ---\n\n"
